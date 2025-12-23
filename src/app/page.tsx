@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <>
       {/* Top Header Title */}
-      <div className="fixed top-5 left-1/2 -translate-x-1/2 text-neutral-900 font-extrabold text-[36px] z-[500] font-carry">
+      <div className="fixed top-5 left-1/2 -translate-x-1/2 text-neutral-900 font-extrabold text-[20px] sm:text-[28px] md:text-[36px] z-[500] font-carry whitespace-nowrap px-4">
         Dong Pham&apos;s Wedding
       </div>
       <HeroSection guest={guest} loading={loading} error={error} />

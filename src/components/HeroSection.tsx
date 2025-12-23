@@ -24,7 +24,11 @@ interface HeroSectionProps {
   error: string | null;
 }
 
-export default function HeroSection({ guest, loading, error }: HeroSectionProps) {
+export default function HeroSection({
+  guest,
+  loading,
+  error,
+}: HeroSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const fgRef = useRef<HTMLDivElement>(null);
@@ -44,6 +48,19 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
   const [showGallery, setShowGallery] = useState(false);
   const [showHorizontalGallery, setShowHorizontalGallery] = useState(false);
   const [showRsvp, setShowRsvp] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useLayoutEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useLayoutEffect(() => {
     if (
@@ -75,15 +92,18 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
         duration: 0.5,
       });
 
-      tl.to(
-        [leftOverlayRef.current, rightOverlayRef.current],
-        {
-          width: "0%",
-          ease: "none",
-          duration: 0.5,
-        },
-        0
-      );
+      // Chỉ animate overlay trên desktop
+      if (!isMobile && leftOverlayRef.current && rightOverlayRef.current) {
+        tl.to(
+          [leftOverlayRef.current, rightOverlayRef.current],
+          {
+            width: "0%",
+            ease: "none",
+            duration: 0.5,
+          },
+          0
+        );
+      }
 
       // Phase 2: Fade in 2 người (50-100% scroll)
       tl.to(
@@ -110,7 +130,7 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
       titleScaleTl.to(
         titleRef.current,
         {
-          scale: 1.5,
+          scale: isMobile ? 1.2 : 1.5,
           transformOrigin: "center center", // Scale from center
           ease: "none",
         },
@@ -121,7 +141,7 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
       titleScaleTl.to(
         titleWrapperRef.current,
         {
-          top: "150px",
+          top: isMobile ? "220px" : "150px",
           ease: "none",
         },
         0
@@ -392,7 +412,7 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
                           trigger: char,
                           containerAnimation: scrollTween,
                           start: "left 100%",
-                          end: "left 60%",
+                          end: isMobile ? "left 90%" : "left 60%",
                           scrub: 1,
                         },
                       }
@@ -665,7 +685,7 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
 
   return (
     <div
@@ -678,7 +698,9 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
         ref={bgRef}
         className="fixed z-0 bg-no-repeat origin-center"
         style={{
-          backgroundImage: "url(/top-bg.jpg)",
+          backgroundImage: isMobile
+            ? "url(/top-mobile-bg.jpg)"
+            : "url(/top-bg.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center bottom",
           scale: "0.9",
@@ -690,19 +712,23 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
         }}
       />
 
-      {/* Layer 2: Overlay trắng bên trái */}
-      <div
-        ref={leftOverlayRef}
-        className="fixed left-0 top-0 z-10 h-screen bg-[#F6F0D7]"
-        style={{ width: "10%" }}
-      />
+      {/* Layer 2: Overlay trắng bên trái - Ẩn trên mobile */}
+      {!isMobile && (
+        <div
+          ref={leftOverlayRef}
+          className="fixed left-0 top-0 z-10 h-screen bg-[#F6F0D7]"
+          style={{ width: "10%" }}
+        />
+      )}
 
-      {/* Layer 3: Overlay trắng bên phải */}
-      <div
-        ref={rightOverlayRef}
-        className="fixed right-0 top-0 z-10 h-screen bg-[#F6F0D7]"
-        style={{ width: "10%" }}
-      />
+      {/* Layer 3: Overlay trắng bên phải - Ẩn trên mobile */}
+      {!isMobile && (
+        <div
+          ref={rightOverlayRef}
+          className="fixed right-0 top-0 z-10 h-screen bg-[#F6F0D7]"
+          style={{ width: "10%" }}
+        />
+      )}
 
       {/* Layer 4: Content - Nội dung chính */}
       <div className="relative z-20 flex min-h-screen w-full items-center justify-center py-32 px-8">
@@ -710,7 +736,7 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
           ref={titleWrapperRef}
           className="fixed"
           style={{
-            top: "35%",
+            top: isMobile ? "50%" : "35%",
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 300,
@@ -720,7 +746,11 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
             ref={titleRef}
             src="/top-logo.svg"
             alt="Đông & Hải"
-            className="w-[380px] h-auto object-contain"
+            className={
+              isMobile
+                ? "w-[150px] h-auto object-contain"
+                : "w-[380px] h-auto object-contain"
+            }
           />
         </div>
       </div>
@@ -730,9 +760,11 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
         ref={fgRef}
         className="pointer-events-none fixed z-30 bg-no-repeat"
         style={{
-          backgroundImage: "url(/top-obj-bg.png)",
-          backgroundSize: "auto 75vh",
-          backgroundPosition: "38.5% 72.5%",
+          backgroundImage: isMobile
+            ? "url(/top-obj-mobile-bg.png)"
+            : "url(/top-obj-bg.png)",
+          backgroundSize: isMobile ? "auto 45vh" : "auto 75vh",
+          backgroundPosition: isMobile ? "0% 84.5%" : "38.5% 72.5%",
           opacity: 0,
           top: 0,
           left: 0,
@@ -798,10 +830,14 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
           {/* Tên bên phải - Đông Phạm */}
           <div
             ref={rightNameRef}
-            className="fixed z-40 text-7xl text-white/80"
+            className={
+              isMobile
+                ? "fixed z-40 text-3xl text-white/80"
+                : "fixed z-40 text-7xl text-white/80"
+            }
             style={{
-              right: "13%",
-              top: "50%",
+              right: isMobile ? "7%" : "13%",
+              top: isMobile ? "44%" : "50%",
               transform: "translateY(-50%)",
               fontFamily: "THViettay, sans-serif",
               fontWeight: "bold",
@@ -829,10 +865,14 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
           {/* Tên bên trái - Ngô Hải */}
           <div
             ref={leftNameRef}
-            className="fixed z-40 text-7xl text-white/80"
+            className={
+              isMobile
+                ? "fixed z-40 text-3xl text-white/80"
+                : "fixed z-40 text-7xl text-white/80"
+            }
             style={{
-              left: "18%",
-              top: "50%",
+              left: isMobile ? "28%" : "18%",
+              top: isMobile ? "44%" : "50%",
               transform: "translateY(-50%)",
               fontFamily: "THViettay, sans-serif",
               fontWeight: "bold",
@@ -863,14 +903,22 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
       {showGallery && (
         <div
           ref={galleryRef}
-          className="fixed inset-0 z-[60] flex pointer-events-none"
+          className={
+            isMobile
+              ? "flex flex-col fixed inset-0 z-[60] pointer-events-none"
+              : "fixed inset-0 z-[60] flex pointer-events-none"
+          }
           style={{
             animation: "fadeIn 0.8s ease-out",
           }}
         >
           {/* Cột trái - Images (trong suốt, nhìn xuyên xuống blur) */}
           <div
-            className="w-1/2 relative flex items-center justify-center pointer-events-auto"
+            className={
+              isMobile
+                ? "w-full h-1/2 relative flex items-center justify-center pointer-events-auto"
+                : "w-1/2 relative flex items-center justify-center pointer-events-auto"
+            }
             style={{ perspective: "1000px" }}
           >
             {[
@@ -882,7 +930,9 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
             ].map((src, index) => (
               <div
                 key={index}
-                className="gallery-image-item absolute inset-0 flex items-center justify-center p-12"
+                className={`gallery-image-item absolute inset-0 flex items-center justify-center ${
+                  isMobile ? "mt-20 p-6" : "p-12"
+                }`}
                 style={{
                   opacity: 0,
                   visibility: "hidden",
@@ -953,7 +1003,11 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
                 <img
                   src={`/img/${src}`}
                   alt={`Gallery ${index + 1}`}
-                  className="max-w-[50%] max-h-full object-contain rounded-2xl shadow-2xl"
+                  className={
+                    isMobile
+                      ? "max-w-[80%] max-h-full object-contain rounded-2xl shadow-2xl"
+                      : "max-w-[50%] max-h-full object-contain rounded-2xl shadow-2xl"
+                  }
                   style={{
                     transformStyle: "preserve-3d",
                   }}
@@ -963,7 +1017,13 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
           </div>
 
           {/* Cột phải - Horizontal Text (trong suốt, nhìn xuyên xuống blur) */}
-          <div className="w-1/2 flex items-center justify-start pointer-events-auto relative overflow-hidden">
+          <div
+            className={
+              isMobile
+                ? "w-full h-1/2 flex items-center justify-start pointer-events-auto relative overflow-hidden"
+                : "w-1/2 flex items-center justify-start pointer-events-auto relative overflow-hidden"
+            }
+          >
             <div
               ref={horizontalTextRef}
               className="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap pl-12"
@@ -1086,7 +1146,12 @@ export default function HeroSection({ guest, loading, error }: HeroSectionProps)
             animation: "fadeIn 0.8s ease-out",
           }}
         >
-          <RsvpForm guest={guest} loading={loading} error={error} />
+          <RsvpForm
+            guest={guest}
+            loading={loading}
+            error={error}
+            isMobile={isMobile}
+          />
         </div>
       )}
     </div>

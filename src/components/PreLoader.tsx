@@ -6,33 +6,37 @@ interface PreLoaderProps {
   onComplete: () => void;
 }
 
-// Danh sách tất cả ảnh cần preload
-const IMAGES = [
-  // Hero section
-  "/top-bg.jpg",
-  "/top-obj-bg.png",
-  "/top-logo.svg",
-  // Gallery 5 ảnh
-  "/img/3I7A5209.jpg",
-  "/img/3I7A5323.jpg",
-  "/img/DongHai.41029.jpg",
-  "/img/DongHai.40867.jpg",
-  "/img/DongHai.41149.jpg",
-  // Horizontal gallery 13 ảnh
-  "/img/DongHai.41622.jpg",
-  "/img/DongHai.41419.jpg",
-  "/img/DongHai.41304.jpg",
-  "/img/DongHai.41182.jpg",
-  "/img/DongHai.41078.jpg",
-  "/img/DongHai.41049.jpg",
-  "/img/3I7A5373.jpg",
-  "/img/3I7A5369.jpg",
-  "/img/3I7A5228.jpg",
-  "/img/3I7A5119.jpg",
-  "/img/3I7A5090.jpg",
-  "/img/3I7A5196.jpg",
-  "/img/3I7A5176.jpg",
-];
+// Hàm lấy danh sách ảnh dựa trên thiết bị
+const getImagesToPreload = () => {
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
+  return [
+    // Hero section - sử dụng ảnh mobile hoặc desktop
+    isMobile ? "/top-mobile-bg.jpg" : "/top-bg.jpg",
+    isMobile ? "/top-obj-mobile-bg.png" : "/top-obj-bg.png",
+    "/top-logo.svg",
+    // Gallery 5 ảnh
+    "/img/3I7A5209.jpg",
+    "/img/3I7A5323.jpg",
+    "/img/DongHai.41029.jpg",
+    "/img/DongHai.40867.jpg",
+    "/img/DongHai.41149.jpg",
+    // Horizontal gallery 13 ảnh
+    "/img/DongHai.41622.jpg",
+    "/img/DongHai.41419.jpg",
+    "/img/DongHai.41304.jpg",
+    "/img/DongHai.41182.jpg",
+    "/img/DongHai.41078.jpg",
+    "/img/DongHai.41049.jpg",
+    "/img/3I7A5373.jpg",
+    "/img/3I7A5369.jpg",
+    "/img/3I7A5228.jpg",
+    "/img/3I7A5119.jpg",
+    "/img/3I7A5090.jpg",
+    "/img/3I7A5196.jpg",
+    "/img/3I7A5176.jpg",
+  ];
+};
 
 const FONTS = [
   { name: "CarryYou", url: "/fonts/carry-you.regular.ttf" },
@@ -40,13 +44,13 @@ const FONTS = [
   { name: "FzManchesterSignature", url: "/fonts/FzManchesterSignature.ttf" },
 ];
 
-const TOTAL_ASSETS = IMAGES.length + FONTS.length;
-
 export default function PreLoader({ onComplete }: PreLoaderProps) {
   const [progress, setProgress] = useState(0);
   const [loadedCount, setLoadedCount] = useState(0);
 
   useEffect(() => {
+    const IMAGES = getImagesToPreload();
+    const TOTAL_ASSETS = IMAGES.length + FONTS.length;
     let loaded = 0;
 
     const updateProgress = () => {
@@ -95,15 +99,15 @@ export default function PreLoader({ onComplete }: PreLoaderProps) {
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#F6F0D7]">
-      <div className="text-center">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#F6F0D7] px-6">
+      <div className="text-center w-full max-w-md">
         {/* Logo hoặc title */}
-        <h1 className="text-5xl font-bold mb-8 font-carry text-neutral-800">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 font-carry text-neutral-800">
           Dong Pham&apos;s Wedding
         </h1>
 
         {/* Progress bar */}
-        <div className="w-80 h-2 bg-neutral-300 rounded-full overflow-hidden mb-4">
+        <div className="w-full max-w-80 mx-auto h-2 bg-neutral-300 rounded-full overflow-hidden mb-4">
           <div
             className="h-full bg-neutral-800 transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
@@ -111,9 +115,7 @@ export default function PreLoader({ onComplete }: PreLoaderProps) {
         </div>
 
         {/* Progress text */}
-        <p className="text-neutral-600">
-          Loading... {Math.round(progress)}%
-        </p>
+        <p className="text-neutral-600">Loading... {Math.round(progress)}%</p>
       </div>
     </div>
   );

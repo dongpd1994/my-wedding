@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -15,9 +16,15 @@ interface RsvpFormProps {
   guest: Guest | null;
   loading: boolean;
   error: string | null;
+  isMobile: boolean;
 }
 
-export default function RsvpForm({ guest, loading, error }: RsvpFormProps) {
+export default function RsvpForm({
+  guest,
+  loading,
+  error,
+  isMobile,
+}: RsvpFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [attended, setAttended] = useState(false);
   const [transport, setTransport] = useState<"SELF" | "SPONSOR">("SELF");
@@ -86,15 +93,21 @@ export default function RsvpForm({ guest, loading, error }: RsvpFormProps) {
       {/* <div className="absolute h-full w-full backdrop-blur-2xl bg-amber-50/20" /> */}
       <div className="mx-auto max-w-3xl text-black p-8">
         <div>
-          <p className="font-bold text-3xl text-white/90">
+          <p
+            className={`font-bold text-white/90 ${
+              isMobile ? "text-xl mt-25 text-center" : "text-3xl"
+            }`}
+          >
             <HandwritingText
               text={`Kính mời: ${guest.name}`}
-              className="text-8xl"
+              className={isMobile ? "text-5xl" : "text-8xl"}
             />
           </p>
           <div
             style={{ fontFamily: "var(--font-oswald)" }}
-            className="text-white/90 text-center text-3xl space-y-2"
+            className={`text-white/90 text-center  ${
+              isMobile ? "text-lg space-y-0.5" : "text-3xl space-y-4"
+            }`}
           >
             <div>Tới dự bữa tiệc chung vui với gia đình chúng tôi</div>
             {guest.groom ? (
@@ -114,9 +127,16 @@ export default function RsvpForm({ guest, loading, error }: RsvpFormProps) {
               <div>Số điện thoại liên hệ chú rể: 0399142921</div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-2 mt-4">
+            <form
+              onSubmit={handleSubmit}
+              className={isMobile ? "space-y-1" : "space-y-3 mt-5"}
+            >
               <div>
-                <label className="cursor-pointer flex items-center justify-center mt-10">
+                <label
+                  className={`cursor-pointer flex items-center justify-center ${
+                    isMobile ? "mt-6" : "mt-10"
+                  }`}
+                >
                   <input
                     type="checkbox"
                     className="mr-3"
@@ -133,10 +153,10 @@ export default function RsvpForm({ guest, loading, error }: RsvpFormProps) {
                   visibility: attended ? "visible" : "hidden",
                   transition: "opacity 0.3s ease-in-out",
                   height: "auto",
-                  minHeight: "80px",
+                  minHeight: isMobile ? "40px" : "80px",
                 }}
               >
-                <div className="space-y-2">
+                <div className={isMobile ? "space-y-1" : "space-y-3"}>
                   <p>Chọn phương án di chuyển:</p>
                   <div className="flex items-center justify-center">
                     <label className="mr-12 cursor-pointer flex items-center">
@@ -168,10 +188,21 @@ export default function RsvpForm({ guest, loading, error }: RsvpFormProps) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="bg-blue-500/70 backdrop-blur-xl mt-4 rounded-full px-10 py-1.5 !text-2xl cursor-pointer hover:scale-110 transition-all transition-300 ease-in"
+                className={`bg-blue-500/70 backdrop-blur-xl rounded-full cursor-pointer hover:scale-110 transition-all transition-300 ease-in ${
+                  isMobile
+                    ? "!text-xl px-8 py-1"
+                    : "!text-2xl px-10 py-1.5 mt-4"
+                }`}
               >
                 {submitting ? "Đang gửi..." : "Gửi"}
               </button>
+              <div className="flex justify-center mt-4">
+                <img
+                  src={`/qr/${guest.groom ? "nam.jpg" : "nu.jpg"}`}
+                  alt="qr"
+                  className="w-[120px] object-contain rounded-xl shadow-2xl"
+                />
+              </div>
             </form>
           </div>
         </div>
